@@ -1,7 +1,8 @@
 // src/features/listings/pages/ListingFormPage.tsx
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Alert, Box, Snackbar, Typography } from '@mui/material';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { Alert, Box, Button, Paper, Snackbar, Typography } from '@mui/material';
+import ArrowBackOutlined from '@mui/icons-material/ArrowBackOutlined';
 import { useCreateListingMutation, useGetListingQuery, useUpdateListingMutation } from '../listingsApi';
 import { ListingForm } from '../components/ListingForm';
 import { ErrorState, LoadingState } from '../../../components/feedback/StateMessage';
@@ -46,27 +47,46 @@ function ListingFormPage() {
   };
 
   return (
-    <Box className="grid gap-4">
-      <Typography variant="h4" component="h1">
-        {isEdit ? 'Edit listing' : 'Create a listing'}
-      </Typography>
-      {serverError && <ErrorState description={serverError} />}
-      <ListingForm
-        initial={
-          listing
-            ? {
-                title: listing.title,
-                description: listing.description,
-                price: listing.price,
-                categoryId: listing.categoryId,
-              }
-            : undefined
-        }
-        submitLabel={isEdit ? 'Save changes' : 'Publish listing'}
-        onSubmit={handleSubmit}
-      />
+    <Box className="mx-auto grid max-w-2xl gap-4">
+      <Button
+        component={RouterLink}
+        to={isEdit && listingId ? `/listings/${listingId}` : '/'}
+        startIcon={<ArrowBackOutlined />}
+        size="small"
+        className="w-fit"
+        sx={{ color: 'text.secondary' }}
+      >
+        {isEdit ? 'Back to listing' : 'Back to listings'}
+      </Button>
+      <Paper elevation={1} className="grid gap-5 p-6 sm:p-8">
+        <Box>
+          <Typography variant="h4" component="h1" className="!font-bold">
+            {isEdit ? 'Edit listing' : 'Create a listing'}
+          </Typography>
+          <Typography color="text.secondary">
+            {isEdit ? 'Update the details buyers will see.' : 'Fill in the details and publish it to the marketplace.'}
+          </Typography>
+        </Box>
+        {serverError && <ErrorState description={serverError} />}
+        <ListingForm
+          initial={
+            listing
+              ? {
+                  title: listing.title,
+                  description: listing.description,
+                  price: listing.price,
+                  categoryId: listing.categoryId,
+                }
+              : undefined
+          }
+          submitLabel={isEdit ? 'Save changes' : 'Publish listing'}
+          onSubmit={handleSubmit}
+        />
+      </Paper>
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)}>
-        <Alert severity="success">Listing saved.</Alert>
+        <Alert severity="success" variant="filled">
+          Listing saved.
+        </Alert>
       </Snackbar>
     </Box>
   );

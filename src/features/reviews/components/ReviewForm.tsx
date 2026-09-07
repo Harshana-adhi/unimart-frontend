@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Box, Button, Rating, TextField, Typography } from '@mui/material';
+import SendOutlined from '@mui/icons-material/SendOutlined';
 
 // rating comes from MUI's Rating component via Controller, which already
 // emits a real number — no z.coerce needed (and z.coerce.number() here
@@ -32,10 +33,10 @@ export function ReviewForm({ initial, submitLabel = 'Submit review', onSubmit }:
   });
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} className="mx-auto grid max-w-xl gap-4" noValidate>
-      <div>
-        <Typography component="label" htmlFor="review-rating" gutterBottom>
-          Rating
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} className="grid gap-5" noValidate>
+      <Box className="rounded-xl p-4" sx={{ bgcolor: 'action.hover' }}>
+        <Typography component="label" htmlFor="review-rating" variant="subtitle2" gutterBottom sx={{ display: 'block' }}>
+          How was your experience?
         </Typography>
         <Controller
           control={control}
@@ -43,6 +44,7 @@ export function ReviewForm({ initial, submitLabel = 'Submit review', onSubmit }:
           render={({ field }) => (
             <Rating
               id="review-rating"
+              size="large"
               value={field.value}
               onChange={(_event, value) => field.onChange(value ?? 0)}
               aria-label="Review rating"
@@ -54,9 +56,10 @@ export function ReviewForm({ initial, submitLabel = 'Submit review', onSubmit }:
             {errors.rating.message}
           </Typography>
         )}
-      </div>
+      </Box>
       <TextField
-        label="Comment"
+        label="Comment (optional)"
+        placeholder="What went well, or what could be better?"
         multiline
         minRows={4}
         slotProps={{ htmlInput: { maxLength: 1000 } }}
@@ -64,7 +67,14 @@ export function ReviewForm({ initial, submitLabel = 'Submit review', onSubmit }:
         helperText={errors.comment?.message}
         {...register('comment')}
       />
-      <Button type="submit" variant="contained" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        disabled={isSubmitting}
+        startIcon={<SendOutlined />}
+        className="justify-self-start"
+      >
         {submitLabel}
       </Button>
     </Box>

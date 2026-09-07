@@ -3,7 +3,12 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Box, Button, MenuItem, TextField } from '@mui/material';
+import { Box, Button, InputAdornment, MenuItem, TextField } from '@mui/material';
+import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
+import SaveOutlined from '@mui/icons-material/SaveOutlined';
+import SellOutlined from '@mui/icons-material/SellOutlined';
+import TitleOutlined from '@mui/icons-material/TitleOutlined';
 import { useGetCategoriesQuery } from '../listingsApi';
 import type { ListingInput } from '../listingTypes';
 
@@ -75,45 +80,92 @@ export function ListingForm({ initial, submitLabel = 'Save listing', onSubmit }:
     });
 
   return (
-    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} className="mx-auto grid max-w-2xl gap-4" noValidate>
+    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} className="grid gap-5" noValidate>
       <TextField
         label="Title"
+        placeholder="e.g. Calculus textbook, 3rd edition"
         error={!!errors.title}
         helperText={errors.title?.message}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleOutlined fontSize="small" color="action" />
+              </InputAdornment>
+            ),
+          },
+        }}
         {...register('title')}
       />
       <TextField
         label="Description"
+        placeholder="Condition, pickup location, anything a buyer should know"
         multiline
         minRows={5}
         error={!!errors.description}
         helperText={errors.description?.message}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                <DescriptionOutlined fontSize="small" color="action" />
+              </InputAdornment>
+            ),
+          },
+        }}
         {...register('description')}
       />
-      <TextField
-        label="Price (LKR)"
-        type="number"
-        slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
-        error={!!errors.price}
-        helperText={errors.price?.message}
-        {...register('price')}
-      />
-      <TextField
-        select
-        label="Category"
-        defaultValue={initial?.categoryId ?? ''}
-        error={!!errors.categoryId}
-        helperText={errors.categoryId?.message}
-        disabled={categoriesLoading}
-        {...register('categoryId')}
+      <Box className="grid gap-5 sm:grid-cols-2">
+        <TextField
+          label="Price (LKR)"
+          type="number"
+          slotProps={{
+            htmlInput: { min: 0, step: '0.01' },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SellOutlined fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            },
+          }}
+          error={!!errors.price}
+          helperText={errors.price?.message}
+          {...register('price')}
+        />
+        <TextField
+          select
+          label="Category"
+          defaultValue={initial?.categoryId ?? ''}
+          error={!!errors.categoryId}
+          helperText={errors.categoryId?.message}
+          disabled={categoriesLoading}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CategoryOutlined fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            },
+          }}
+          {...register('categoryId')}
+        >
+          {categories?.map((category) => (
+            <MenuItem key={category.id} value={category.id}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Box>
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        disabled={isSubmitting}
+        startIcon={<SaveOutlined />}
+        className="justify-self-start"
       >
-        {categories?.map((category) => (
-          <MenuItem key={category.id} value={category.id}>
-            {category.name}
-          </MenuItem>
-        ))}
-      </TextField>
-      <Button type="submit" variant="contained" disabled={isSubmitting}>
         {submitLabel}
       </Button>
     </Box>

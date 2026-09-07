@@ -3,7 +3,12 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, InputAdornment, MenuItem, Paper, TextField, Typography } from '@mui/material';
+import BadgeOutlined from '@mui/icons-material/BadgeOutlined';
+import EmailOutlined from '@mui/icons-material/EmailOutlined';
+import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
+import LockOutlined from '@mui/icons-material/LockOutlined';
+import Storefront from '@mui/icons-material/Storefront';
 import { useNavigate } from 'react-router-dom';
 import { useRegisterMutation } from '../authApi';
 import { ErrorState } from '../../../components/feedback/StateMessage';
@@ -48,46 +53,95 @@ function RegisterPage() {
   };
 
   return (
-    <Box className="mx-auto grid max-w-sm gap-4">
-      <Typography variant="h4" component="h1">
-        Create an account
-      </Typography>
-      {serverError && <ErrorState description={serverError} />}
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} className="grid gap-4" noValidate>
-        <TextField
-          label="Full name"
-          error={!!errors.fullName}
-          helperText={errors.fullName?.message}
-          {...register('fullName')}
-        />
-        <TextField
-          label="University email"
-          type="email"
-          error={!!errors.universityEmail}
-          helperText={errors.universityEmail?.message}
-          {...register('universityEmail')}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          error={!!errors.password}
-          helperText={errors.password?.message}
-          {...register('password')}
-        />
-        <Controller
-          control={control}
-          name="role"
-          render={({ field }) => (
-            <TextField select label="I am a…" {...field}>
-              <MenuItem value="BUYER">Buyer</MenuItem>
-              <MenuItem value="SELLER">Seller</MenuItem>
-            </TextField>
-          )}
-        />
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
-          Register
-        </Button>
+    <Box className="mx-auto flex max-w-sm flex-col items-center gap-4 py-6">
+      <Box
+        className="flex h-14 w-14 items-center justify-center rounded-2xl text-white"
+        sx={{ background: 'linear-gradient(135deg, #2451b5 0%, #0ea5a3 100%)' }}
+      >
+        <Storefront fontSize="medium" />
       </Box>
+      <Box className="text-center">
+        <Typography variant="h4" component="h1" className="!font-bold">
+          Create an account
+        </Typography>
+        <Typography color="text.secondary">Join UniMart with your university email</Typography>
+      </Box>
+
+      <Paper elevation={1} className="w-full p-6 sm:p-8">
+        {serverError && (
+          <Box className="mb-4">
+            <ErrorState description={serverError} />
+          </Box>
+        )}
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+          <TextField
+            label="Full name"
+            error={!!errors.fullName}
+            helperText={errors.fullName?.message}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <BadgeOutlined fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            {...register('fullName')}
+          />
+          <TextField
+            label="University email"
+            type="email"
+            error={!!errors.universityEmail}
+            helperText={errors.universityEmail?.message}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailOutlined fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            {...register('universityEmail')}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlined fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            {...register('password')}
+          />
+          <Controller
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <TextField select label="I am a…" {...field}>
+                <MenuItem value="BUYER">Buyer</MenuItem>
+                <MenuItem value="SELLER">Seller</MenuItem>
+              </TextField>
+            )}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            disabled={isSubmitting}
+            startIcon={<HowToRegOutlined />}
+          >
+            Register
+          </Button>
+        </Box>
+      </Paper>
     </Box>
   );
 }
