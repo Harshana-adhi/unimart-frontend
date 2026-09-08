@@ -1,6 +1,6 @@
 // src/features/listings/components/ListingForm.tsx
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Box, Button, InputAdornment, MenuItem, TextField } from '@mui/material';
@@ -46,6 +46,7 @@ export function ListingForm({ initial, submitLabel = 'Save listing', onSubmit }:
   const { data: categories, isLoading: categoriesLoading } = useGetCategoriesQuery();
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -133,30 +134,42 @@ export function ListingForm({ initial, submitLabel = 'Save listing', onSubmit }:
           helperText={errors.price?.message}
           {...register('price')}
         />
-        <TextField
-          select
-          label="Category"
-          defaultValue={initial?.categoryId ?? ''}
-          error={!!errors.categoryId}
-          helperText={errors.categoryId?.message}
-          disabled={categoriesLoading}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <CategoryOutlined fontSize="small" color="action" />
-                </InputAdornment>
-              ),
-            },
-          }}
-          {...register('categoryId')}
-        >
-          {categories?.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
-          ))}
-        </TextField>
+        {/* MUI's Select is not a native <select> — it needs a real controlled
+            value/onChange (via Controller) rather than register(), both so
+            the value stays a string (matching the schema; register()'s
+            uncontrolled wiring would hand back whatever type the selected
+            MenuItem's `value` prop is, i.e. a number, which zod then
+            rejects) and so it visually re-syncs when reset() runs (edit
+            mode, once the existing listing loads). */}
+        <Controller
+          control={control}
+          name="categoryId"
+          render={({ field }) => (
+            <TextField
+              {...field}
+              select
+              label="Category"
+              error={!!errors.categoryId}
+              helperText={errors.categoryId?.message}
+              disabled={categoriesLoading}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CategoryOutlined fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            >
+              {categories?.map((category) => (
+                <MenuItem key={category.id} value={String(category.id)}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
       </Box>
       <Button
         type="submit"
